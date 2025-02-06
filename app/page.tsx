@@ -8,6 +8,7 @@ export default function Home() {
       <section className="remove-scrollbar container my-auto">
         <div className="sub-container max-w-[496px]">
           Home page
+          something
         </div>
       </section>
     </div>
