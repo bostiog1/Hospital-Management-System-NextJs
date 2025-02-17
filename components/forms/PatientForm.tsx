@@ -3,25 +3,53 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { CostumFormField } from "../ui/CostumFormField";
+import SubmitButton from "../ui/SubmitButton";
+import { useState } from "react";
+import { UserFormValidation } from "@/lib/validation";
+import { useRouter } from "next/navigation";
 
-const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-});
+export enum FormFieldType {
+  INPUT = "input",
+  TEXTAREA = "textarea",
+  PHONE_INPUT = "phoneInput",
+  CHECKBOX = "checkbox",
+  DATE_PICKER = "datePicker",
+  SELECT = "select",
+  SKELETON = "skeleton",
+}
 
 const PatientForm = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const form = useForm<z.infer<typeof UserFormValidation>>({
+    resolver: zodResolver(UserFormValidation),
     defaultValues: {
-      username: "",
+      name: "",
+      email: "",
+      phone: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit({
+    name,
+    email,
+    phone,
+  }: z.infer<typeof UserFormValidation>) {
+    setIsLoading(true);
+    try {
+      // const userData = {
+      //   name,
+      //   email,
+      //   phone,
+      // };
+      // const user = await createUser(userData);
+      // if (user) router.push(`/patients/${user.$id}/register`);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
@@ -31,23 +59,32 @@ const PatientForm = () => {
           <h1 className="header">Hi there 👋</h1>
           <p className="text-dark-700">Schedule your first appoitment</p>
         </section>
-        <FormField
+        <CostumFormField
+          fieldType={FormFieldType.INPUT}
           control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Username</FormLabel>
-              <FormControl>
-                <Input placeholder="shadcn" {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
+          name="name"
+          label="Full name"
+          placeholder="John Doe"
+          iconSrc="/assets/icons/user.svg"
+          iconAlt="user"
         />
-        <Button type="submit">Submit</Button>
+        <CostumFormField
+          fieldType={FormFieldType.INPUT}
+          control={form.control}
+          name="email"
+          label="Email"
+          placeholder="johnDoe@yahoo.com"
+          iconSrc="/assets/icons/email.svg"
+          iconAlt="email"
+        />
+        <CostumFormField
+          fieldType={FormFieldType.PHONE_INPUT}
+          control={form.control}
+          name="phone"
+          label="Phone number"
+          placeholder="(+40) 123 456 789"
+        />
+        <SubmitButton isLoading={isLoading}>Get Started</SubmitButton>
       </form>
     </Form>
   );
