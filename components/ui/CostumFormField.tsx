@@ -33,7 +33,7 @@ interface CustomProps {
 const RenderField = ({ field, props }: { field: any; props: CustomProps }) => {
   const { fieldType, iconSrc, iconAlt, placeholder } = props;
 
-  switch (props.fieldType) {
+  switch (fieldType) {
     case FormFieldType.INPUT:
       return (
         <div className="flex rounded-md border border-dark-500 bg-dark-400">
