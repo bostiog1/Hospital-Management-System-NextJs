@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form } from "@/components/ui/form";
-import { CostumFormField } from "../ui/CostumFormField";
+import { CustomFormField } from "../ui/CustomFormField";
 import SubmitButton from "../ui/SubmitButton";
 import { useState } from "react";
 import { UserFormValidation } from "@/lib/validation";
@@ -67,7 +67,7 @@ const PatientForm = () => {
           <h1 className="header">Hi there 👋</h1>
           <p className="text-dark-700">Schedule your first appoitment</p>
         </section>
-        <CostumFormField
+        <CustomFormField
           fieldType={FormFieldType.INPUT}
           control={form.control}
           name="name"
@@ -76,7 +76,7 @@ const PatientForm = () => {
           iconSrc="/assets/icons/user.svg"
           iconAlt="user"
         />
-        <CostumFormField
+        <CustomFormField
           fieldType={FormFieldType.INPUT}
           control={form.control}
           name="email"
@@ -85,7 +85,7 @@ const PatientForm = () => {
           iconSrc="/assets/icons/email.svg"
           iconAlt="email"
         />
-        <CostumFormField
+        <CustomFormField
           fieldType={FormFieldType.PHONE_INPUT}
           control={form.control}
           name="phone"

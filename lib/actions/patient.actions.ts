@@ -29,3 +29,13 @@ export const createUser = async (user: CreateUserParams) => {
     throw error; // Re-throw the error to handle it in the `onSubmit` function
   }
 };
+
+export const getUser = async (userId: string) => {
+  try {
+    const user = await users.get(userId);
+    return parseStringify(user);
+  } catch (error: any) {
+    console.error("Error fetching user:", error);
+    throw error; // Re-throw the error to handle it in the `onSubmit` function
+  }
+};
