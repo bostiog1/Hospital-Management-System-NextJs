@@ -1,5 +1,7 @@
 const NewAppointment = () => {
-  return <div>NewAppointment</div>;
+  return <div>NewAppointment
+    <h1>change</h1>
+  </div>;
 };
 
 export default NewAppointment;
