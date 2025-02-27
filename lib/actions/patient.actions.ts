@@ -1,41 +1,113 @@
 "use server";
 
 import { ID, Query } from "node-appwrite";
-import { parseStringify } from "../utils";
-import { users } from "../appwrite.config";
+import { InputFile } from "node-appwrite/file";
 
+import {
+  BUCKET_ID,
+  DATABASE_ID,
+  ENDPOINT,
+  PATIENT_COLLECTION_ID,
+  PROJECT_ID,
+  databases,
+  storage,
+  users,
+} from "../appwrite.config";
+import { parseStringify } from "../utils";
+
+// CREATE APPWRITE USER
 export const createUser = async (user: CreateUserParams) => {
   try {
-    console.log("Creating user with data:", user); // Log the input data
-    const newUser = await users.create(
-      ID.unique(), // Unique user ID
-      user.email, // User email
-      user.phone, // User phone number
-      undefined, // Password (optional)
-      user.name // User name
+    // Create new user -> https://appwrite.io/docs/references/1.5.x/server-nodejs/users#create
+    const newuser = await users.create(
+      ID.unique(),
+      user.email,
+      user.phone,
+      undefined,
+      user.name
     );
 
-    console.log("New User Created:", newUser); // Log the created user
-    return parseStringify(newUser);
+    return parseStringify(newuser);
   } catch (error: any) {
-    console.error("Error creating user:", error); // Log the error
+    // Check existing user
     if (error && error?.code === 409) {
-      console.log("User already exists, fetching existing user...");
-      const documents = await users.list([Query.equal("email", [user.email])]);
-      console.log("Existing User Found:", documents.users[0]); // Log the existing user
+      const existingUser = await users.list([
+        Query.equal("email", [user.email]),
+      ]);
 
-      return documents?.users[0];
+      return existingUser.users[0];
     }
-    throw error; // Re-throw the error to handle it in the `onSubmit` function
+    console.error("An error occurred while creating a new user:", error);
   }
 };
 
+// GET USER
 export const getUser = async (userId: string) => {
   try {
     const user = await users.get(userId);
+
     return parseStringify(user);
-  } catch (error: any) {
-    console.error("Error fetching user:", error);
-    throw error; // Re-throw the error to handle it in the `onSubmit` function
+  } catch (error) {
+    console.error(
+      "An error occurred while retrieving the user details:",
+      error
+    );
+  }
+};
+
+// REGISTER PATIENT
+export const registerPatient = async ({
+  identificationDocument,
+  ...patient
+}: RegisterUserParams) => {
+  try {
+    // Upload file ->  // https://appwrite.io/docs/references/cloud/client-web/storage#createFile
+    let file;
+    if (identificationDocument) {
+      const inputFile =
+        identificationDocument &&
+        InputFile.fromBuffer(
+          identificationDocument?.get("blobFile") as Blob,
+          identificationDocument?.get("fileName") as string
+        );
+
+      file = await storage.createFile(BUCKET_ID!, ID.unique(), inputFile);
+    }
+
+    // Create new patient document -> https://appwrite.io/docs/references/cloud/server-nodejs/databases#createDocument
+    const newPatient = await databases.createDocument(
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID!,
+      ID.unique(),
+      {
+        identificationDocumentId: file?.$id ? file.$id : null,
+        identificationDocumentUrl: file?.$id
+          ? `${ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${file.$id}/view??project=${PROJECT_ID}`
+          : null,
+        ...patient,
+      }
+    );
+
+    return parseStringify(newPatient);
+  } catch (error) {
+    console.error("An error occurred while creating a new patient:", error);
+  }
+};
+
+// GET PATIENT
+export const getPatient = async (userId: string) => {
+  try {
+    const patients = await databases.listDocuments(
+      DATABASE_ID!,
+      PATIENT_COLLECTION_ID!,
+      [Query.equal("userId", [userId])]
+    );
+
+    return parseStringify(patients.documents[0]);
+  } catch (error) {
+    console.error(
+      "An error occurred while retrieving the patient details:",
+      error
+    );
   }
 };
