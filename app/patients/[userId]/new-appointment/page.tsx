@@ -2,7 +2,7 @@ const NewAppointment = () => {
   return (
     <div>
       NewAppointment
-      <h1>test</h1>
+      <h1>Starting point</h1>
     </div>
   );
 };
